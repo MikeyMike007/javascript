@@ -27,7 +27,7 @@ const boardPassengers = function (n, wait) {
     setTimeout(function () {
         console.log(`We are now boarding all ${n} passengers`);
         console.log(`There are 3 groups, each with ${perGroup} passengers`);
-    }, (wait = 1000));
+    }, wait * 1000);
     console.log(`Will start boarding in ${wait} seconds`);
 };
 
@@ -40,6 +40,7 @@ A FUNCTION HAS ACCESS TO THE VARIABLE ENVIROMENT OF THE EXECUTION IN WHICH IT WA
 CLOSURE: VARIABLE ENVIROMENT TO THE FUNCTION, EXCTLY AS IT WAS AT THE TIME AND PLACE THE FUNCTION WAS CREATED
 */
 const secureBooking = function () {
+    // Remember scope rules, this cannot be accesses from the outside
     let passengerCount = 0;
 
     return function () {
