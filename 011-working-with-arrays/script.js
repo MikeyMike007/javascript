@@ -81,7 +81,7 @@ displayMovements(account1.movements);
 
 const calcPrintBalance = (movements) => {
     const balance = movements.reduce((acc, mov) => acc + mov, 0);
-    labelBalance.textContent = `${balance} EUR`;
+    labelBalance.textContent = `${balance} €`;
 };
 calcPrintBalance(account1.movements);
 
@@ -343,4 +343,12 @@ const totalDepositsUSD = movements
     .filter((mov) => mov > 0)
     .map((mov) => mov * euroToUSD)
     .reduce((acc, mov) => acc + mov, 0);
+
+/* 11.155: THE FIND METHOD */
+
+const firstWithdrawal = movements.find((mov) => mov < 0);
+console.log(firstWithdrawal); // -400 // -400
+
+const account = accounts.find((acc) => acc.owner === 'Jessica Davis');
+console.log(account);
 /////////////////////////////////////////////////

@@ -704,14 +704,104 @@ const calcDisplaySummary = (movements) => {
 calcDisplaySummary(account1.movements);
 ```
 
-So, we should not overuse chaining so we should try to optimize it since it can
-cause real performance issues if we have really huge arrays. So if we have a
-huge chain of methods, chained one after the other, we should try to compress the
-functionality of what they do into as little methods as possible. For example,
-sometimes we create way more map methods than we actually need where we could
-just do it all in just one map.
+Please note that it is not recommended to overuse chaining so we should try to
+optimize it since it can cause real performance issues if we have really huge
+arrays. So if we have a huge chain of methods, chained one after the other, we
+should try to compress the functionality of what they do into as little methods
+as possible. For example, sometimes we create way more map methods than we
+actually need where we could just do it all in just one map.
 
 So when you chain methods, keep look for opportunities of keeping up your code
 performance. Also, it is considered bad practise in JavaScript to chain methods
 that mutate the underlying original array, and an example of such method is
 `splice`. To repeat, you should not chain splice or reverse methods.
+
+## 11.154 CODING CHALLENGE 3
+
+```javascript
+///////////////////////////////////////
+// Coding Challenge #3
+
+/*
+Rewrite the 'calcAverageHumanAge' function from the previous challenge, but this time as an arrow function, and using chaining!
+
+TEST DATA 1: [5, 2, 4, 1, 15, 8, 3]
+TEST DATA 2: [16, 6, 10, 5, 6, 1, 4]
+
+GOOD LUCK 😀
+*/
+
+const calcAverageHumanAge = (ages) =>
+    ages
+        .map((age) => (age <= 2 ? 2 * age : 16 + age * 4))
+        .filter((age) => age >= 18)
+        .reduce((acc, age, i, arr) => acc + age / arr.length, 0);
+// adults.length
+
+const avg1 = calcAverageHumanAge([5, 2, 4, 1, 15, 8, 3]);
+const avg2 = calcAverageHumanAge([16, 6, 10, 5, 6, 1, 4]);
+console.log(avg1, avg2);
+```
+
+## 11.155 THE FIND METHOD
+
+We can use the `find` method to retrieve an element of an array based on one
+condition. Basically, it returns the first element of the array that satisfies the
+specified condition.
+
+The find method is a bit simiular to the filter method, but, there are two
+fundamental diffferences,
+
+1. `filter` returns all the elements that match the condition while the `find`
+   method only returns the first element.
+2. `filter` method returns a new array while `find` only returns the element
+   itself and not an array.
+
+Please see following example of an illustration on how the `find` works,
+
+```javascript
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+
+const firstWithdrawal = movements.find((mov) => mov < 0);
+console.log(firstWithdrawal); // -400 // -400
+```
+
+Another example is that you can retrieve a whole object based on the criteria of
+a object parameter,
+
+```javascript
+const account1 = {
+    owner: 'Jonas Schmedtmann',
+    movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
+    interestRate: 1.2, // %
+    pin: 1111,
+};
+
+const account2 = {
+    owner: 'Jessica Davis',
+    movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
+    interestRate: 1.5,
+    pin: 2222,
+};
+
+const account3 = {
+    owner: 'Steven Thomas Williams',
+    movements: [200, -200, 340, -300, -20, 50, 400, -460],
+    interestRate: 0.7,
+    pin: 3333,
+};
+
+const account4 = {
+    owner: 'Sarah Smith',
+    movements: [430, 1000, 700, 50, 90],
+    interestRate: 1,
+    pin: 4444,
+};
+
+const accounts = [account1, account2, account3, account4];
+
+const account = accounts.find((acc) => acc.owner === 'Jessica Davis');
+console.log(account); // Logs Jessica Davis whole account object
+```
+
+## 11.156 IMPLEMENTING LOGIN
