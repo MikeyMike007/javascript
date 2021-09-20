@@ -571,6 +571,25 @@ const max = movements.reduce(
 const max2 = movements.reduce((acc, mov) => Math.max(acc, mov), movements[0]);
 ```
 
+### EXAMPLE 2
+
+```javascript
+const account1 = {
+    owner: 'Jonas Schmedtmann',
+    movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
+    interestRate: 1.2, // %
+    pin: 1111,
+};
+
+const calcPrintBalance = (movements) => {
+    const balance = movements.reduce((acc, mov) => acc + mov, 0);
+    labelBalance.textContent = `${balance} €`;
+    // labelBalance is one UI element in the bankist app that displays the
+    // total balance of the bank account
+};
+calcPrintBalance(account1.movements);
+```
+
 ## 11.152 CODING CHALLENGE 2
 
 Please see the coding challenge below,
@@ -624,6 +643,8 @@ One such example is when we want to convert all the deposits to USD and then
 after conversion, accumulate these into a sum. Please see example below.
 
 ```javascript
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+
 const totalDepositsUSD = movements
     /*
      *  Please note that the input parameters to the filter((el, index, array))
@@ -648,6 +669,39 @@ const totalDepositsUSD = movements
      * using the reduce method
      */
     .reduce((acc, mov) => acc + mov, 0);
+```
+
+In this chapter, we also used the following taught techniques to update the
+bankist app with methodology for estimating the aggregated deposits and
+withdrawals. The earned interest is also computed. See example below,
+
+```javascript
+const calcDisplaySummary = (movements) => {
+    const incomes = movements
+        .filter((mov) => mov > 0)
+        .reduce((acc, mov) => acc + mov, 0);
+    labelSumIn.textContent = `${incomes}€`;
+
+    const out = movements
+        .filter((mov) => mov < 0)
+        .reduce((acc, mov) => acc + mov, 0);
+    labelSumOut.textContent = `${Math.abs(out)}€`;
+
+    const interest = movements
+        .filter((mov) => mov > 0)
+        .map((deposit) => (deposit * 1.2) / 100)
+        .filter((int, i, arr) => {
+            // Bank Rule, bank only pays out interest if its above 1 €
+            // So we need to filter out the interest from the map function
+            // in the prior step in the pipeline
+            console.log(arr);
+            return int >= 1;
+        })
+        .reduce((acc, int) => acc + int, 0);
+    labelSumInterest.textContent = `${interest}€`;
+};
+
+calcDisplaySummary(account1.movements);
 ```
 
 So, we should not overuse chaining so we should try to optimize it since it can
