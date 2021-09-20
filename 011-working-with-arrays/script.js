@@ -77,28 +77,25 @@ const displayMovements = function (movements) {
     });
 };
 
-displayMovements(account1.movements);
-
 const calcPrintBalance = (movements) => {
     const balance = movements.reduce((acc, mov) => acc + mov, 0);
     labelBalance.textContent = `${balance} €`;
 };
-calcPrintBalance(account1.movements);
 
-const calcDisplaySummary = (movements) => {
-    const incomes = movements
+const calcDisplaySummary = (acc) => {
+    const incomes = acc.movements
         .filter((mov) => mov > 0)
         .reduce((acc, mov) => acc + mov, 0);
     labelSumIn.textContent = `${incomes}€`;
 
-    const out = movements
+    const out = acc.movements
         .filter((mov) => mov < 0)
         .reduce((acc, mov) => acc + mov, 0);
     labelSumOut.textContent = `${Math.abs(out)}€`;
 
-    const interest = movements
+    const interest = acc.movements
         .filter((mov) => mov > 0)
-        .map((deposit) => (deposit * 1.2) / 100)
+        .map((deposit) => (deposit * acc.interestRate) / 100)
         .filter((int, i, arr) => {
             // New rule, bank only pays out interest if its above 1€
             // So we need to filter out the interest from the map function
@@ -109,8 +106,6 @@ const calcDisplaySummary = (movements) => {
         .reduce((acc, int) => acc + int, 0);
     labelSumInterest.textContent = `${interest}€`;
 };
-
-calcDisplaySummary(account1.movements);
 
 const createUsenames = (accs) => {
     accs.forEach((acc) => {
@@ -129,6 +124,44 @@ const createUsenames = (accs) => {
 
 createUsenames(accounts);
 console.log(accounts);
+
+/* 11.156: IMPLEMENTING LOGIN */
+
+// Event handlers
+let currentAccount;
+
+btnLogin.addEventListener('click', (e) => {
+    /*
+     * Since the btnLogin button is a button in a form element, the page is
+     * reloaded everytime when the button is clicked. We want toprevent this from
+     * happening so we need to implement following method:
+     */
+    e.preventDefault();
+    currentAccount = accounts.find(
+        (acc) => acc.userName === inputLoginUsername.value
+    );
+    if (currentAccount?.pin === Number(inputLoginPin.value)) {
+        // display UI and welcome message
+        labelWelcome.textContent = `Welcome back,
+        ${currentAccount.owner.split(' ')[0]}`;
+        containerApp.style.opacity = 100;
+
+        // Clear inputfields
+        inputLoginUsername.value = inputLoginPin.value = '';
+        inputLoginPin.blur(); // Makes the cursor stop blinking at the pin cell
+
+        // Display movements
+        displayMovements(currentAccount.movements);
+
+        // Display balance
+        calcPrintBalance(currentAccount.movements);
+
+        // Display summary
+        calcDisplaySummary(currentAccount);
+    }
+    // Use ? so it doesnt throw an error if the account doesnt exist
+    console.log('LOGIN');
+});
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES

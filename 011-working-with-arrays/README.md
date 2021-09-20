@@ -805,3 +805,100 @@ console.log(account); // Logs Jessica Davis whole account object
 ```
 
 ## 11.156 IMPLEMENTING LOGIN
+
+In this chapter, we implemented the login functionality and displaying the
+correct data in the UI dependent on who the user is. Ill enclose the code below
+that were implemented:
+
+```javascript
+let currentAccount; // global variable of the current account that is logged in
+
+// btnLogin is the login button - see below
+btnLogin.addEventListener('click', (e) => {
+    /*
+     * Since btnLogin is a button in a form element, the whole page will
+     * reload every time when the button is clicked, unless we prevent that
+     * from happening. This can be done by calling the function preventDefault
+     * from the event handler e.
+     */
+    e.preventDefault();
+
+    /*
+     * The code below will read username from inputLoginUserName and return the
+     * first account that it finds with that exact same username in the account array
+     * i.e. acc.userName
+     */
+    currentAccount = accounts.find(
+        (acc) => acc.userName === inputLoginUsername.value
+    );
+
+    /*
+     * If the pin number that the user inserted in inputLoginPin is exactly the
+     * same as the users pin number read from the object currentAccount, then,
+     * 1) Display a welcome message saying Welcome first name where first name is
+     *    to be found using the split method on the name stated in currentAccount.owner
+     *
+     *    Please note that we are using ? after current account to avoid
+     *    error messages if the user would enter a faulty pin number. Instead, nothing
+     *    will happen as the statement below with the ? will throw an undefined
+          value.
+     */
+    if (currentAccount?.pin === Number(inputLoginPin.value)) {
+        // display UI and welcome message
+        labelWelcome.textContent = `Welcome back,
+        ${currentAccount.owner.split(' ')[0]}`;
+
+        // Show the container - it has currently opacity of 0 which means it is
+        // invisible
+        containerApp.style.opacity = 100;
+
+        // Clear all the input fields i.e. Username and Pin
+        inputLoginUsername.value = inputLoginPin.value = '';
+        // Make the cursor stop blinking in the Pin field
+        inputLoginPin.blur();
+
+        // Display movements
+        displayMovements(currentAccount.movements);
+
+        // Display balance
+        calcPrintBalance(currentAccount.movements);
+
+        // Display summary
+        calcDisplaySummary(currentAccount);
+    }
+});
+```
+
+We also needed to modify the function `calcDisplaySummary` to accommodate for the
+input of an account instead of movements. This due to that every user has a
+different interest rate. So this means that interest earned are different for
+every other user.
+
+```javascript
+const calcDisplaySummary = (acc) => {
+    const incomes = acc.movements
+        .filter((mov) => mov > 0)
+        .reduce((acc, mov) => acc + mov, 0);
+    labelSumIn.textContent = `${incomes}€`;
+
+    const out = acc.movements
+        .filter((mov) => mov < 0)
+        .reduce((acc, mov) => acc + mov, 0);
+    labelSumOut.textContent = `${Math.abs(out)}€`;
+
+    const interest = acc.movements
+        .filter((mov) => mov > 0)
+        .map((deposit) => (deposit * acc.interestRate) / 100)
+        .filter((int, i, arr) => {
+            // New rule, bank only pays out interest if its above 1€
+            // So we need to filter out the interest from the map function
+            // in the prior step in the pipeline
+            console.log(arr);
+            return int >= 1;
+        })
+        .reduce((acc, int) => acc + int, 0);
+    labelSumInterest.textContent = `${interest}€`;
+};
+```
+
+## 11.157 THE `findIndex` method
