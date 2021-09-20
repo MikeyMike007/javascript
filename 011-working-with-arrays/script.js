@@ -68,7 +68,7 @@ const displayMovements = function (movements) {
         const html = `
         <div class="movements__row">
           <div class="movements__type 
-          movements__type--${type}">${i + 1}</div>
+          movements__type--${type}">${i + 1} ${type}</div>
           <div class="movements__value">${mov}€</div>
         </div>`;
         // If we would use 'beforeend' below the balance movements would be
@@ -79,7 +79,38 @@ const displayMovements = function (movements) {
 
 displayMovements(account1.movements);
 
-/* 10.149 COMPUTING USERNAMES */
+const calcPrintBalance = (movements) => {
+    const balance = movements.reduce((acc, mov) => acc + mov, 0);
+    labelBalance.textContent = `${balance} EUR`;
+};
+calcPrintBalance(account1.movements);
+
+const calcDisplaySummary = (movements) => {
+    const incomes = movements
+        .filter((mov) => mov > 0)
+        .reduce((acc, mov) => acc + mov, 0);
+    labelSumIn.textContent = `${incomes}€`;
+
+    const out = movements
+        .filter((mov) => mov < 0)
+        .reduce((acc, mov) => acc + mov, 0);
+    labelSumOut.textContent = `${Math.abs(out)}€`;
+
+    const interest = movements
+        .filter((mov) => mov > 0)
+        .map((deposit) => (deposit * 1.2) / 100)
+        .filter((int, i, arr) => {
+            // New rule, bank only pays out interest if its above 1€
+            // So we need to filter out the interest from the map function
+            // in the prior step in the pipeline
+            console.log(arr);
+            return int >= 1;
+        })
+        .reduce((acc, int) => acc + int, 0);
+    labelSumInterest.textContent = `${interest}€`;
+};
+
+calcDisplaySummary(account1.movements);
 
 const createUsenames = (accs) => {
     accs.forEach((acc) => {
@@ -267,4 +298,49 @@ console.log(movementDescriptions);
 */
 
 /* 10.149: COMPUTING USERNAMES */
+
+// See above
+
+/* 11.150 THE FILTER METHOD */
+
+const deposits = movements.filter((mov) => mov > 0);
+const withdrawals = movements.filter((mov) => mov < 0);
+
+// const deposits = movements.filter((mov) => {
+//     return mov > 0;
+// });
+
+// const withdrawals = movements.filter((mov) => {
+//     return mov < 0;
+// });
+
+// NON-MODERN METHOD WITH for of
+const depositsFor = [];
+for (const mov of movements) if (mov > 0) depositsFor.push(mov);
+
+/* 11.151 THE REDUCE METHOD */
+
+const balance = movements.reduce((acc, curr) => acc + curr, 0); // last variable specifies the first value of the accumulator, default is 0
+console.log(balance);
+
+// Old method
+let balance2 = 0;
+for (const mov of movements) balance2 += mov;
+console.log(balance2);
+
+// Maximum value
+
+const max = movements.reduce(
+    (acc, mov) => (acc > mov ? acc : mov),
+    movements[0]
+);
+/*
+ * Could also use: return Math.max(acc, mov);
+ *
+ */
+
+const totalDepositsUSD = movements
+    .filter((mov) => mov > 0)
+    .map((mov) => mov * euroToUSD)
+    .reduce((acc, mov) => acc + mov, 0);
 /////////////////////////////////////////////////

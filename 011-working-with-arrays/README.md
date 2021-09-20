@@ -79,7 +79,7 @@ console.log(arr2); // ['f', 'g', 'h', 'i', 'j']
 
 ### CONCATENATE METHOD
 
-The concatenate method merges the contents of two arrays and returns it. please
+The concatenate method merges the contents of two arrays and returns it. Please
 note that it doesn't mutate the original array i.e. the original array stays the
 same.
 
@@ -111,7 +111,7 @@ const strArr = arr.join(arr, '-')
 console.log(strArr); // "a-b-c"
 ```
 
-## 10.142 LOOPING ARRAYS WITH: `forEach()`
+## 11.142 LOOPING ARRAYS WITH: `forEach()`
 
 As in the same way as with the `for (const arrElement of arr)`, you can also use
 the `forEach()` method to loop over arrays.
@@ -158,7 +158,7 @@ values doesn't need to be provided if you don't need them.
 One main difference with the `for of` and `forEach()` method is that you cannot
 use `break` and `continue` inside the `forEach()` method.
 
-## 10.143 `forEach` WITH MAPS AND SETS
+## 11.143 `forEach` WITH MAPS AND SETS
 
 ### MAPS
 
@@ -217,7 +217,7 @@ currenciesUnique.forEach((value, _value, map) => {
 });
 ```
 
-## 10.145: PROJECT: THE BANKIST APP
+## 11.145: PROJECT: THE BANKIST APP
 
 Following illustrates the flowchart for the current bank app:
 
@@ -226,7 +226,7 @@ Following illustrates the flowchart for the current bank app:
 We are storing accounts (which are objects) into arrays. This is just to
 replicate if we would get the data from an web API.
 
-## 10.146 CREATING DOM ELEMENTS
+## 11.146 CREATING DOM ELEMENTS
 
 Lets say that we have following object that we want to populate into an bank app
 UI.
@@ -317,7 +317,7 @@ With this code in place, we are now able to populate the movements:
 
 ![movements_container_populated](img/movements_container_populated.png)
 
-## 10.146: CODING CHALLENGE #1
+## 11.146: CODING CHALLENGE #1
 
 ```javascript
 ///////////////////////////////////////
@@ -374,7 +374,7 @@ data.forEach((age, i) => {
 });
 ```
 
-## 10.147 DATA TRANSFORMATIONS: MAP, FILTER AND REDUCE
+## 11.147 DATA TRANSFORMATIONS: MAP, FILTER AND REDUCE
 
 ### MAP METHOD
 
@@ -469,6 +469,16 @@ returns a copy of the underlying array.
 In this chapter, following code was specified in the bankist app:
 
 ```javascript
+const account1 = {
+    owner: 'Jonas Schmedtmann',
+    movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
+    interestRate: 1.2, // %
+    pin: 1111,
+};
+
+// account2,3,4 are similar objects with different fictional names
+
+const accounts = [account1, account2, account3, account4];
 const createUsenames = (accs) => {
     accs.forEach((acc) => {
         /*
@@ -493,4 +503,161 @@ Please also note that we do not need to return anything in the `forEach`
 function since it already can modify the underlying array though the argument i
 the callback function (`acc`).
 
-## 10.150 THE FILTER METHOD
+## 11.150 THE FILTER METHOD
+
+Is used for filter for elements that fulfill a certain logical criteria. In this
+chapter, we sorted out the deposits and withdrawals from a array with account
+movements depending of if the element in the movements array were a positive
+value (deposit) or a negative value (withdrawal).
+
+See example:
+
+```javascript
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+// First, lets illustrate how this is dont with the for of loop (unmodern method)
+const depositsFor = [];
+for (const mov of movements) if (mov > 0) depositsFor.push(mov);
+
+// Now, lets see how this is done with the more modern filter method
+const deposits = movements.filter((mov) => mov > 0);
+const withdrawals = movements.filter((mov) => mov < 0);
+
+// Also, Please note that the filter methods above is the exactly the same as
+// for the commented code below
+// const deposits = movements.filter((mov) => {
+//     return mov > 0;
+// });
+
+// const withdrawals = movements.filter((mov) => {
+//     return mov < 0;
+// });
+```
+
+## 11.151 THE REDUCE METHOD
+
+The reduce method can perform an operation on the underlying array to then
+return a single value. Please note that the arguments in the callback function
+in the `reduce` method are little different from the other array methods.
+
+-   First argument: This is an accumulator. It is essentially a snowball variable
+    that keeps to accumulate the variable that we want to return.
+-   Second argument: This is the current variable that the method progresses
+
+In this lecture, two different examples was shown, one were you accumulate the
+whole sum of the `movements` array and another one where you loop over the same
+array and return the maximum value of array. Please see examples below,
+
+### EXAMPLE 1 ACCUMULATIVE SUM OF AN ARRAY
+
+```javascript
+/*
+ * Lets first illustrate how you do this with the for of method
+ */
+let balance2 = 0;
+for (const mov of movements) balance2 += mov;
+
+/*
+ * Now, with the reduce() method
+ */
+const max = movements.reduce(
+    (acc, mov) => (acc > mov ? acc : mov),
+    movements[0] /* movements[0] = STARTING VALUE OF ACCUMULATOR */
+);
+
+/*
+ * You could also do the same using the Math.max() function
+ */
+
+const max2 = movements.reduce((acc, mov) => Math.max(acc, mov), movements[0]);
+```
+
+## 11.152 CODING CHALLENGE 2
+
+Please see the coding challenge below,
+
+```javascript
+///////////////////////////////////////
+// Coding Challenge #2
+
+/* 
+Let's go back to Julia and Kate's study about dogs. This time, they want to
+convert dog ages to human ages and calculate the average age of the dogs in
+their study.
+
+Create a function 'calcAverageHumanAge', which accepts an arrays of dog's ages
+('ages'), and does the following things in order:
+
+1. Calculate the dog age in human years using the following formula: if the dog
+is <= 2 years old, humanAge = 2 * dogAge. If the dog is > 2 years old, humanAge
+= 16 + dogAge * 4.
+
+2. Exclude all dogs that are less than 18 human years old
+(which is the same as keeping dogs that are at least 18 years old)
+
+3. Calculate
+the average human age of all adult dogs (you should already know from other
+challenges how we calculate averages 😉) 4. Run the function for both test
+datasets
+
+TEST DATA 1: [5, 2, 4, 1, 15, 8, 3] TEST DATA 2: [16, 6, 10, 5, 6, 1, 4]
+
+GOOD LUCK 😀
+
+*/
+const calculateAverageAge = (ages) => {
+    const humanYears = ages.map((age) => (age <= 2 ? 2 * age : 16 + age * 4));
+    const adults = humanYears.filter((age) => age >= 18);
+    return adults.reduce((acc, age, i, arr) => acc + age / arr.length, 0);
+};
+
+console.log(`Average: ${calculateAverageAge([5, 2, 4, 1, 15, 8, 3])}`); //44
+```
+
+## 11.153 THE MAGIC OF CHAINING METHODS
+
+Please note that functions such as `filter`, `map` and `reduce` return copies of
+the underlying array it performs its operations on. Due to this feature, we dont
+need to split up our code in different separate actions. Instead, we could use a
+single codechain and create a pipeline of operations.
+
+One such example is when we want to convert all the deposits to USD and then
+after conversion, accumulate these into a sum. Please see example below.
+
+```javascript
+const totalDepositsUSD = movements
+    /*
+     *  Please note that the input parameters to the filter((el, index, array))
+     *  method below comes from original array that is inserted into the array.
+     */
+    .filter((mov) => mov > 0)
+    /*
+     * Please note that the input parameters to the map((el, index, array))
+     * method comes from the returned array from the prior operation in the
+     * chain, i.e., in this case, after all positive currency movements (deposits)
+     * have been filtered in and returned.
+     */
+    .map((mov) => mov * euroToUSD)
+    /*
+     * Please note that the input parameters to the reduce((acc, mov))
+     * method comes from the returned array from the prior operation in the
+     * chain, i.e., in this case, after all deposits have been converted to USD.
+     */
+
+    /*
+     * The last operation basically aggregates all the USD deposits together
+     * using the reduce method
+     */
+    .reduce((acc, mov) => acc + mov, 0);
+```
+
+So, we should not overuse chaining so we should try to optimize it since it can
+cause real performance issues if we have really huge arrays. So if we have a
+huge chain of methods, chained one after the other, we should try to compress the
+functionality of what they do into as little methods as possible. For example,
+sometimes we create way more map methods than we actually need where we could
+just do it all in just one map.
+
+So when you chain methods, keep look for opportunities of keeping up your code
+performance. Also, it is considered bad practise in JavaScript to chain methods
+that mutate the underlying original array, and an example of such method is
+`splice`. To repeat, you should not chain splice or reverse methods.
