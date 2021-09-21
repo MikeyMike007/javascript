@@ -1,5 +1,4 @@
 'use strict';
-
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // BANKIST APP
@@ -77,9 +76,9 @@ const displayMovements = function (movements) {
     });
 };
 
-const calcPrintBalance = (movements) => {
-    const balance = movements.reduce((acc, mov) => acc + mov, 0);
-    labelBalance.textContent = `${balance} €`;
+const calcPrintBalance = (acc) => {
+    acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
+    labelBalance.textContent = `${acc.balance} €`;
 };
 
 const calcDisplaySummary = (acc) => {
@@ -123,6 +122,18 @@ const createUsenames = (accs) => {
 };
 
 createUsenames(accounts);
+
+const updateUI = (acc) => {
+    // Display movements
+    displayMovements(acc.movements);
+
+    // Display balance
+    calcPrintBalance(acc);
+
+    // Display summary
+    calcDisplaySummary(acc);
+};
+
 console.log(accounts);
 
 /* 11.156: IMPLEMENTING LOGIN */
@@ -150,18 +161,52 @@ btnLogin.addEventListener('click', (e) => {
         inputLoginUsername.value = inputLoginPin.value = '';
         inputLoginPin.blur(); // Makes the cursor stop blinking at the pin cell
 
-        // Display movements
-        displayMovements(currentAccount.movements);
-
-        // Display balance
-        calcPrintBalance(currentAccount.movements);
-
-        // Display summary
-        calcDisplaySummary(currentAccount);
+        updateUI(currentAccount);
     }
     // Use ? so it doesnt throw an error if the account doesnt exist
-    console.log('LOGIN');
 });
+
+btnTransfer.addEventListener('click', (e) => {
+    e.preventDefault();
+    const amount = Number(inputTransferAmount.value);
+    const recieverAcc = accounts.find(
+        (acc) => acc.userName === inputTransferTo.value
+    );
+
+    inputTransferAmount.value = inputTransferTo.value = '';
+
+    if (
+        amount > 0 &&
+        recieverAcc &&
+        currentAccount.balance >= amount &&
+        recieverAcc?.userName !== currentAccount.userName
+    ) {
+        currentAccount.movements.push(-amount);
+        recieverAcc.movements.push(amount);
+        updateUI(currentAccount);
+    }
+});
+
+btnClose.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    if (
+        inputCloseUsername.value === currentAccount.userName &&
+        Number(inputClosePin.value) === currentAccount.pin
+    ) {
+        const index = accounts.findIndex(
+            (acc) => acc.userName === currentAccount.userName
+        );
+        // Delete account
+        accounts.splice(index, 1);
+
+        // Hide UI
+        containerApp.style.opacity = 0;
+
+        inputCloseUsername.value = inputClosePin.value = '';
+    }
+});
+
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES

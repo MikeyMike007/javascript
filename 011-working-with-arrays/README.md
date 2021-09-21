@@ -901,4 +901,114 @@ const calcDisplaySummary = (acc) => {
 };
 ```
 
-## 11.157 THE `findIndex` method
+## 11.157 IMPLEMENTING TRANSFERS
+
+In the following chapter, we have implemented the transfer functionality in the
+bankist app.
+
+The main functionality was implemented as an event listener for the button
+`btnTransfer`,
+
+```javascript
+btnTransfer.addEventListener('click', (e) => {
+    e.preventDefault();
+    const amount = Number(inputTransferAmount.value);
+    const recieverAcc = accounts.find(
+        (acc) => acc.userName === inputTransferTo.value
+    );
+
+    inputTransferAmount.value = inputTransferTo.value = '';
+
+    if (
+        amount > 0 &&
+        recieverAcc &&
+        currentAccount.balance >= amount &&
+        recieverAcc?.userName !== currentAccount.userName
+    ) {
+        currentAccount.movements.push(-amount);
+        recieverAcc.movements.push(amount);
+        updateUI(currentAccount);
+    }
+});
+```
+
+We also created refactored some code into a function named `updateUI` that takes
+an account (currentAccount) as an argument.
+
+```javascript
+const updateUI = (acc) => {
+    // Display movements
+    displayMovements(acc.movements);
+
+    // Display balance
+    calcPrintBalance(acc);
+
+    // Display summary
+    calcDisplaySummary(acc);
+};
+```
+
+We also refactored the same code `updateUI` for the other event listener as well
+(`btnLogin`).
+
+## 11.158 THE `findIndex` method
+
+In this chapter, functionality for deleting an account is implemented. This is
+done by using the use the `splice` method. But in order to use the splice
+method, we need to know at which index number the account has that we wish to
+delete.
+
+Please note the difference between the `indexOf` method and the `findIndex`
+method.
+
+-   The `indexOf()` method expects a value as first parameter. This makes a good
+    choice find the index in arrays of primitive types (string, number or
+    boolean).
+
+-   The `findIndex` expects a `callback` function has first parameter. Use this of
+    you need the index in arrays with non-primitive types (e.g. objects) or your
+    find condition is more complex than just a value.
+
+Example `indexOf()`:
+
+```javascript
+var ages = [3, 10, 18, 20];
+console.log(ages.indexOf(10)); // 1
+```
+
+Example of `findIndex()`:
+
+```javascript
+var ages = [3, 10, 18, 20];
+console.log(ages.findIndex((age) => age >= 18)); //2
+```
+
+Following code were implemented to the bankist app,
+
+```javascript
+btnClose.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    if (
+        inputCloseUsername.value === currentAccount.userName &&
+        Number(inputClosePin.value) === currentAccount.pin
+    ) {
+        const index = accounts.findIndex(
+            (acc) => acc.userName === currentAccount.userName
+        );
+        // Delete account
+        accounts.splice(index, 1);
+
+        // Hide UI
+        containerApp.style.opacity = 0;
+
+        inputCloseUsername.value = inputClosePin.value = '';
+    }
+});
+```
+
+The `btnClose` is the closing of account button, `inputCloseUsername` is the
+field where you insert your username (the account to be closed) and
+`inputClosePin` is the pin for the account to be closed.
+
+## 11.159 `some()` AND `every()` METHODS
