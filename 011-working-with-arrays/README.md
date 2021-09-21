@@ -1012,3 +1012,298 @@ field where you insert your username (the account to be closed) and
 `inputClosePin` is the pin for the account to be closed.
 
 ## 11.159 `some()` AND `every()` METHODS
+
+### `some()` METHOD
+
+The `some()` method returns true or false if there exists an element inside an
+array that fulfills a certain logical requirement. This can be compared to the
+more simpler method `includes()`. Please see examples of both below. The main
+difference is that `includes()` takes a value and `some()` takes callback
+function.
+
+```javascript
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+
+// EQUALITY
+console.log(movements.includes(-130)); // true
+
+// CONDITION
+console.log(movements.some((el) => el > 0)); // true
+console.log(movements.some((el) => el >= 1500)); // true
+console.log(movements.some((el) => el >= 3001)); // false
+```
+
+In this chapter, we also added an event listener to the button `btnLoan()` to
+implement functionality regarding requesting for new loans. See code below:
+
+```javascript
+btnLoan.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    const amount = Number(inputLoanAmount.value);
+
+    if (
+        amount > 0 &&
+        // Loan is only granted if there is any deposit that exceeds 10%
+        // of the requested loan amount
+        currentAccount.movements.some((mov) => mov >= amount * 0.1)
+    ) {
+        // Add movement
+        currentAccount.movements.push(amount);
+
+        // Update UI
+        updateUI(currentAccount);
+    }
+});
+```
+
+### `every()` METHOD
+
+The every method is similar to the `some()` method with the difference that it
+returns true or false if **all** elements of the array fulfills the specified
+criteria. The method takes a callback function as input. Please see examples
+below,
+
+```javascript
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+console.log(movements.every((mov) => mov > 0)); // false
+console.log(account4.movements.every((mov) => mov > 0)); // true
+```
+
+### Separate callback function
+
+This chapter also discussed pros of having a separate callback function (reuse
+similar code). Please see examples below,
+
+```javascript
+const deposit = (mov) => mov > 0;
+console.log(movements.some(deposit)); // true
+console.log(movements.every(deposit)); // false
+console.log(account4.movements.every(deposit)); // true
+console.log(movements.filter(deposit)); // [200, 450, 3000, 70, 1300];
+```
+
+## 11.160 `flat()` and `flatMap()` METHODS
+
+Both the flat and `flatMap` method flattens nested arrays. The `flatMap` method
+combines both a map method and a flat method since it is kind of a common
+operation that developers use so it was incorporated into the standard JavaScript
+library recently. Please see examples below,
+
+```javascript
+const arrNested = [[1, 2, 3], [4, 5, 6], 7, 8];
+/*
+ *
+ * arrNested.flat() "un-nestes" the array in "one level" which is default
+ *
+ *
+ */
+console.log(arrNested.flat()); // Gives: [1, 2, 3, 4, 5, 6, 7, 8]
+
+/*
+ *
+ * arrDeep is nested in two levels. In this case, you will need to pass an
+ * argument to the flat() method, in this case, 2, so it understands that it
+ * will need to "un-nest" in two layers.
+ *
+ *
+ */
+const arrDeep = [[[1, 2], 3], [4, [5, 6]], 7, 8];
+console.log(arrDeep.flat(2)); // Gives: [1, 2, 3, 4, 5, 6, 7, 8]
+
+/*
+ *
+ *  Save all the account movements into an array i.e. [account1.movements,
+ *  account2.movements, ..., ....]
+ *
+ */
+const accountMovements = accounts.map((acc) => acc.movements);
+
+/*
+ *
+ *  Flat the accountMovements array in one level
+ *
+ */
+const allMovements = accountMovements.flat();
+
+/*
+ *
+ * Calculate the total account balance for all accounts
+ *
+ */
+const overallBalance = allMovements.reduce((acc, mov) => acc + mov, 0);
+
+/*
+ *
+ * Please note that all the previous steps can be done in a nested format i.e.
+ * in a pipeline.
+ *
+ */
+const overallBalancePipeline = accounts
+    .map((acc) => acc.movements)
+    .flat()
+    .reduce((acc, mov) => acc + mov, 0);
+
+/*
+ *
+ * Because map() and flat() method is so commonly used after one another by
+ * developers, JavaScript decided to give it a whole separate function called
+ * flatMap
+ *
+ */
+const overallBalanceflatMap = accounts
+    .flatMap((acc) => acc.movements)
+    .reduce((acc, mov) => acc + mov, 0);
+```
+
+## 11.161 SORTING ARRAYS
+
+The `sort()` method is used for sorting arrays.
+
+Please note that the `sort()` method can be performed on both strings and numbers
+Also, it is also important to note that the `sort()` method has a mutating
+ability, i.e. it changes the underlying array which it sorts.
+
+Another important feature of the `sort()` method is that if you directly
+pass in an array of numbers into the `sort()` method. It will first convert the
+values into strings and then sort them.
+
+To sort the array as values, you need to pass an callback function into the
+`sort()` method.
+
+```javascript
+/*
+ *
+ * Example of sorting strings
+ *
+ */
+const owners = ['Jonas', 'Zach', 'Adam', 'Martha'];
+owners.sort();
+
+/*
+ *
+ * Please note that the sort method has now changed the underlying array
+ *
+ */
+console.log(owners);
+
+/*
+ *
+ * Numbers not in order, doesnt make any sense. This is due to that the
+ * algorithms first converts the numbers to strings and then sorts it. In order
+ * to sort them as numbers you will need to pass a callback function.
+ *
+ */
+console.log(movements.sort());
+
+/*
+ *
+ *  The sort function with the callback function is little special, it works as
+ *  if we are sorting the numbers in ascending order, the function would need to
+ *  return a positive value if the first argument in the callback is larger than the
+ *  second.
+ *
+ */
+
+// Ascending
+movements.sort((a, b) => {
+    if (a > b) return 1;
+    if (a < b) return -1;
+});
+
+// Descending
+movements.sort((a, b) => {
+    if (a > b) return -1;
+    if (a < b) return 1;
+});
+
+/*
+ *
+ * The callback functions above can be significantly simplified with following
+ * code
+ *
+ */
+
+// Ascending
+movements.sort((a, b) => a - b);
+
+// Desending
+movements.sort((a, b) => b - a);
+```
+
+With regards to the bakinst app, we implemented a sorting functionality of all
+the movements related to an account holder.
+
+```javascript
+/*
+ *
+ * variable sorted is implemented as a state variable that identifies if the
+ * movements should be sorted or not.
+ *
+ */
+let sorted = false;
+
+/*
+ *
+ *  Add an event listener to the sort button
+ *
+ */
+btnSort.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    /*
+     *
+     * Pass in the opposite of the current state of the variable sorted
+     *
+     */
+    displayMovements(currentAccount.movements, !sorted);
+
+    /*
+     *
+     *  Toogle the state variable sorted so that the next time you push it, it will
+     * go back to its normal state (chronological order)
+     *
+     */
+    sorted = !sorted;
+});
+
+/*
+ *
+ * In order to get this to work we also had to modify the displayMovements
+ * function to take a second argument sort with the default value false
+ *
+ */
+
+const displayMovements = function (movements, sort = false) {
+    containerMovements.innerHTML = '';
+
+    /*
+     *
+     * Please note that we use slice here below when we sort the movements array
+     * since we dont want to change the underlying movements arrray (remember
+     * the sort() method is mutating). We use the slice method to take a copy.
+     *
+     */
+    const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+
+    /*
+     *
+     *  Now we perform forEach on the sorted movs array instead
+     *
+     */
+    movs.forEach(function (mov, i) {
+        const type = mov > 0 ? 'deposit' : 'withdrawal';
+        const html = `
+        <div class="movements__row">
+          <div class="movements__type 
+          movements__type--${type}">${i + 1} ${type}</div>
+          <div class="movements__value">${mov}€</div>
+        </div>`;
+        // If we would use 'beforeend' below the balance movements would be
+        // in another order (inverted)
+        containerMovements.insertAdjacentHTML('afterbegin', html);
+    });
+};
+```
+
+## 11.162 MORE WAYS OF CREATING AND FILLING ARRAYS

@@ -60,9 +60,19 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
-const displayMovements = function (movements) {
+const displayMovements = function (movements, sort = false) {
     containerMovements.innerHTML = '';
-    movements.forEach(function (mov, i) {
+
+    /*
+     *
+     * Please note that we use slice here below when we sort the movements array
+     * since we dont want to change the underlying movements arrray (remember
+     * the sort() method is mutating). We use the slice method to take a copy.
+     *
+     */
+    const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+
+    movs.forEach(function (mov, i) {
         const type = mov > 0 ? 'deposit' : 'withdrawal';
         const html = `
         <div class="movements__row">
@@ -138,8 +148,27 @@ console.log(accounts);
 
 /* 11.156: IMPLEMENTING LOGIN */
 
-// Event handlers
+// vent handlers
 let currentAccount;
+
+btnLoan.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    const amount = Number(inputLoanAmount.value);
+
+    if (
+        amount > 0 &&
+        // Loan is only granted if there is any deposit that exceeds 10%
+        // of the requested loan amount
+        currentAccount.movements.some((mov) => mov >= amount * 0.1)
+    ) {
+        // Add movement
+        currentAccount.movements.push(amount);
+
+        // Update UI
+        updateUI(currentAccount);
+    }
+});
 
 btnLogin.addEventListener('click', (e) => {
     /*
@@ -205,6 +234,13 @@ btnClose.addEventListener('click', (e) => {
 
         inputCloseUsername.value = inputClosePin.value = '';
     }
+});
+
+let sorted = false;
+btnSort.addEventListener('click', (e) => {
+    e.preventDefault();
+    displayMovements(currentAccount.movements, !sorted);
+    sorted = !sorted;
 });
 
 /////////////////////////////////////////////////
@@ -429,4 +465,121 @@ console.log(firstWithdrawal); // -400 // -400
 
 const account = accounts.find((acc) => acc.owner === 'Jessica Davis');
 console.log(account);
-/////////////////////////////////////////////////
+
+/* 11.159 SOME AND EVERY */
+
+console.log('---------------11.159 SOME AND EVERY---------------');
+
+console.log(movements);
+
+// SOME
+console.log('SOME:');
+
+// EQUALITY
+console.log(movements.includes(-130)); // true
+
+// CONDITION
+console.log(movements.some((el) => el > 0)); // true
+console.log(movements.some((el) => el >= 1500)); // true
+console.log(movements.some((el) => el >= 3001)); // false
+
+// EVERY
+console.log('EVERY:');
+// returns true if all elements in an array satisfies the specified logical
+// criteria. Takes a callback function as input
+
+console.log(movements.every((mov) => mov > 0)); // false
+console.log(account4.movements.every((mov) => mov > 0)); // true
+
+// SEPARATE CALLBACK
+const deposit = (mov) => mov > 0;
+console.log(movements.some(deposit)); // true
+console.log(movements.every(deposit)); // false
+console.log(account4.movements.every(deposit)); // true
+console.log(movements.filter(deposit)); // [200, 450, 3000, 70, 1300];
+
+/* FLAT AND FLATPACK METHODS */
+const arr3 = [[1, 2, 3], [4, 5, 6], 7, 8];
+console.log(arr3.flat()); // [1, 2, 3, 4, 5, 6, 7, 8] (de-nestes an array in one level)
+
+const arrDeep = [[[1, 2], 3], [4, [5, 6]], 7, 8];
+console.log(arrDeep.flat(2)); // [1, 2, 3, 4, 5, 6, 7, 8] (de-nestes an array in two levels)
+
+const accountMovements = accounts.map((acc) => acc.movements);
+console.log(accountMovements); // array of arrays of all movements i.e.
+// [account1.movements, account2.movements, .., ...]
+
+const allMovements = accountMovements.flat();
+console.log(allMovements); // all movements unnested
+const overallBalance = allMovements.reduce((acc, mov) => acc + mov, 0);
+console.log(overallBalance);
+
+const overallBalance2 = accounts
+    .map((acc) => acc.movements)
+    .flat()
+    .reduce((acc, mov) => acc + mov, 0);
+console.log(overallBalance2);
+
+// map and then flat is a common operation so its implemented as standard
+
+const overallBalance3 = accounts
+    .flatMap((acc) => acc.movements)
+    .reduce((acc, mov) => acc + mov, 0);
+console.log(overallBalance3);
+
+/*
+ *
+ * 11.156 SORTING ARRAYS
+ *
+ */
+
+const owners = ['Jonas', 'Zach', 'Adam', 'Martha'];
+owners.sort(); // Mutates the underlying array
+console.log(owners);
+
+console.log(movements);
+//console.log(movements.sort()); // Numbers not in order, doesnt make any sense
+// This is due to that the algortihm first converts the numbers to strings and
+// then sorts it
+
+// return < 0, A, B
+// return > 0, B, A
+
+// Ascending
+movements.sort((a, b) => {
+    if (a > b) return 1;
+    if (a < b) return -1;
+});
+console.log(movements);
+
+// Descending
+movements.sort((a, b) => {
+    if (a > b) return -1;
+    if (a < b) return 1;
+});
+console.log(movements);
+
+// Ascending
+movements.sort((a, b) => a - b);
+
+// Desending
+movements.sort((a, b) => b - a);
+
+/* 11.162 MORE WAYS OF CREATING AND FILLING ARRAYS */
+const arr5 = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+console.log(new Array(1, 2, 3, 4, 5, 6, 7, 9));
+const x = new Array(7);
+console.log(x);
+console.log(x.map(() => 5));
+x.fill(1, 3);
+console.log(x);
+x.fill(1, 3, 5);
+console.log(x);
+arr.fill(23, 2, 6);
+
+const y = Array.from({ length: 7 }, () => 1);
+console.log(y);
+
+const z = Array.from({ length: 7 }, (curr, i) => i + 1);
+
+/////////////////////////////////////////////////;
