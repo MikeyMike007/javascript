@@ -1307,3 +1307,190 @@ const displayMovements = function (movements, sort = false) {
 ```
 
 ## 11.162 MORE WAYS OF CREATING AND FILLING ARRAYS
+
+In this chapter, methods on how to create and fill arrays were discussed. The
+methods are descibed in the code below,
+
+```javascript
+const arr0 = [1, 2, 3]; // [1, 2, 3]
+const arr1 = new Array(1, 2, 3); // [1, 2, 3]
+const arr2 = new Array(3); // [ < Three emty items > ]
+
+/*
+ *
+ * The fill method
+ *
+ */
+const arr3 = [1, 2, 3, 4];
+
+// fill with 0 from position 2 until position 4
+console.log(arr3.fill(0, 2, 4));
+// expected output: [1, 2, 0, 0]
+
+// fill with 5 from position 1
+console.log(arr3.fill(5, 1));
+// expected output: [1, 5, 5, 5]
+
+console.log(arr3.fill(6));
+// expected output: [6, 6, 6, 6]
+
+/*
+ *
+ *  The Array.from method
+ *
+ */
+
+const y = Array.from({ length: 7 }, () => 1);
+console.log(y);
+
+/*
+ *
+ *  Another use of Array.from
+ *
+ */
+
+labelBalance.addEventListener('click', function () {
+    const movementUI = Array.from(
+        document.querySelectorAll('.movements__value')
+    );
+
+    console.log(
+        movementUI.map((el) => Number(el.textContent.replace('€', '')))
+    );
+});
+```
+
+Definitions of `Array.from()`:
+
+Array.from() lets you create Arrays from:
+
+Array-like objects (objects with a length property and indexed elements); or
+iterable objects (objects such as Map and Set). Array.from() has an optional
+parameter `mapFn()` , which allows you to execute a `map()` function on each element of
+the array being created.
+
+More clearly, `Array.from(obj, mapFn, thisArg)` has the same result as
+`Array.from(obj).map(mapFn, thisArg)`, except that it does not create an
+intermediate array, and `mapFn()` only receives two arguments (element, index).
+
+Note: This is especially important for certain array subclasses, like typed
+arrays, since the intermediate array would necessarily have values truncated to
+fit into the appropriate type.
+
+The length property of the `from()` method is 1.
+
+In ES2015, the class syntax allows sub-classing of both built-in and
+user-defined classes. As a result, static methods such as `Array.from()` are
+"inherited" by subclasses of Array, and create new instances of the subclass,
+not Array.
+
+Examples:
+
+Basic examples
+
+```javascript
+console.log(Array.from('foo'));
+// expected output: Array ["f", "o", "o"]
+
+console.log(Array.from([1, 2, 3], (x) => x + x));
+// expected output: Array [2, 4, 6]
+```
+
+Array from a String
+
+```javascript
+Array.from('foo');
+// [ "f", "o", "o" ]
+```
+
+Array from a Set
+
+```javascript
+const set = new Set(['foo', 'bar', 'baz', 'foo']);
+Array.from(set);
+// [ "foo", "bar", "baz" ]
+```
+
+Array from a Map
+
+```javascript
+const map = new Map([
+    [1, 2],
+    [2, 4],
+    [4, 8],
+]);
+Array.from(map);
+// [[1, 2], [2, 4], [4, 8]]
+
+const mapper = new Map([
+    ['1', 'a'],
+    ['2', 'b'],
+]);
+Array.from(mapper.values());
+// ['a', 'b'];
+
+Array.from(mapper.keys());
+// ['1', '2'];
+```
+
+Array from an Array-like object (arguments)
+
+```javascript
+function f() {
+    return Array.from(arguments);
+}
+
+f(1, 2, 3);
+
+// [ 1, 2, 3 ]
+```
+
+Using arrow functions and Array.from()
+
+```javascript
+// Using an arrow function as the map function to
+// manipulate the elements
+Array.from([1, 2, 3], (x) => x + x);
+// [2, 4, 6]
+
+// Generate a sequence of numbers
+// Since the array is initialized with `undefined` on each position,
+// the value of `v` below will be `undefined`
+Array.from({ length: 5 }, (v, i) => i);
+// [0, 1, 2, 3, 4]
+```
+
+Sequence generator (range)
+
+```javascript
+// Sequence generator function (commonly referred to as "range", e.g. Clojure, PHP etc)
+const range = (start, stop, step) =>
+    Array.from(
+        { length: (stop - start) / step + 1 },
+        (_, i) => start + i * step
+    );
+
+// Generate numbers range 0..4
+range(0, 4, 1);
+// [0, 1, 2, 3, 4]
+
+// Generate numbers range 1..10 with step of 2
+range(1, 10, 2);
+// [1, 3, 5, 7, 9]
+
+// Generate the alphabet using Array.from making use of it being ordered as a sequence
+range('A'.charCodeAt(0), 'Z'.charCodeAt(0), 1).map((x) =>
+    String.fromCharCode(x)
+);
+// ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+```
+
+## 11.163 SUMMARY: WHICH ARRAY METHOD TO USE
+
+![11.163-SUMMARY](img/11.163-SUMMARY.png)
+
+## 11.164 ARRAY METHOD ON PRACTISE
+
+
+
+

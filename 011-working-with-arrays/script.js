@@ -577,9 +577,112 @@ x.fill(1, 3, 5);
 console.log(x);
 arr.fill(23, 2, 6);
 
-const y = Array.from({ length: 7 }, () => 1);
-console.log(y);
+/*
+ *
+ *  Use notation
+ *
+ */
+const z = Array.from({ length: 7 }, (_, i) => i + 1);
+console.log(z);
 
-const z = Array.from({ length: 7 }, (curr, i) => i + 1);
+labelBalance.addEventListener('click', function () {
+    const movementUI = Array.from(
+        document.querySelectorAll('.movements__value')
+    );
 
+    console.log(
+        movementUI.map((el) => Number(el.textContent.replace('€', '')))
+    );
+});
+
+/* ## 11.163 SUMMARY: WHICH ARRAY METHOD TO USE */
+
+/* ## 11.164 ARRAY METHOD ON PRACTISE */
+
+/*
+ *
+ * Remeber that following methods are the same
+ *
+ *
+ * const bankDepositSum = accounts.map((acc) => acc.movements).flat();
+ * const bankDepositSum = accounts.flatMap((acc) => acc.movements);
+ */
+
+// 1
+const bankDepositSum = accounts
+    .flatMap((acc) => acc.movements)
+    .filter((mov) => mov > 0)
+    .reduce((acc, mov) => acc + mov, 0);
+
+console.log(bankDepositSum);
+
+// 2 All movements above 1000
+
+const numDeposits1000 = accounts
+    .flatMap((acc) => acc.movements)
+    .reduce((count, cur) => (cur >= 1000 ? ++count : count));
+
+// 3 Returning an object from reduce method
+
+const sums = accounts
+    .flatMap((acc) => acc.movements)
+    .reduce(
+        (sums, curr) => {
+            curr > 0 ? (sums.deposits += curr) : (sums.withdrawals += curr);
+            return sums;
+        },
+        { deposits: 0, withdrawals: 0 } //sums.deposits = 0, sums.withdrawals = 0
+    );
+
+console.log(sums);
+
+// Same as 3 but with deconstruct
+
+const { deposits1, withdrawals1 } = accounts
+    .flatMap((acc) => acc.movements)
+    .reduce(
+        (sums, curr) => {
+            curr > 0 ? (sums.deposits1 += curr) : (sums.withdrawals1 += curr);
+            return sums;
+        },
+        { deposits1: 0, withdrawals1: 0 } //sums.deposits = 0, sums.withdrawals = 0
+    );
+
+console.log('Destructured');
+console.log(deposits1, withdrawals1);
+
+const { deposits2, withdrawals2 } = accounts
+    .flatMap((acc) => acc.movements)
+    .reduce(
+        (sums, curr) => {
+            sums[curr > 0 ? 'deposits2' : 'withdrawals2'] += curr;
+            return sums;
+        },
+        { deposits2: 0, withdrawals2: 0 } //sums.deposits = 0, sums.withdrawals = 0
+    );
+
+console.log(deposits2, withdrawals2);
+
+// 4
+// this is a nice title -> This Is a Nice Title
+
+const convertTitleCase = (title) => {
+    const capitalize = (str) => str[0].toUpperCase() + str.slice(1);
+    const exceptions = [
+        'a',
+        'an',
+        'and',
+        'the',
+        'but',
+        'or',
+        'on',
+        'in',
+        'with',
+    ];
+
+    const titleCase = title
+        .toLowerCase()
+        .split(' ')
+        .map((word) => exceptions.includes(word5));
+};
 /////////////////////////////////////////////////;
