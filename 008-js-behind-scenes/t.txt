@@ -1,0 +1,16 @@
+jonas is born in year: 1991
+jonas is not a millenial
+jonas is born in year: 1991
+jonas is a millenial
+jonas is born in year: 1991
+jonas is a millenial
+undefined is born in year: undefined
+undefined is not a millenial
+Matilda is born in year: 2017
+Matilda is a millenial
+[Arguments] { '0': 2, '1': 5 }
+[Arguments] { '0': 2, '1': 5, '2': 1 }
+jessica's lastname: Williams
+jessicaCopy's lastname: Davis
+jessica's family: Alice,Bob,John,Mary
+jessicaCopy's family: Alice,Bob,John,Mary
