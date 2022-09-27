@@ -570,3 +570,227 @@ document
 ```
 
 ## DOM Traversing
+
+Some good reads about DOM Traversal
+
+<https://zellwk.com/blog/dom-traversals/>
+
+<https://www.digitalocean.com/community/tutorials/how-to-traverse-the-dom>
+
+Select a element in the HTML document,
+
+```javascript
+const h1 = document.querySelector('h1')
+```
+
+### Downward traversal
+
+Now traverse downwards. Select all children that belong to class `highlight`,
+
+```javascript
+// Select all elements that has class 'highlight' inside the h1 element/tag
+console.log(h1.querySelectorAll('.highlight'))
+```
+
+Display all child nodes of the selected `h1` element,
+
+```javascript
+// Displays all child nodes e.g. text, comments, etc. (A lot of info)
+console.log(h1.childNodes)
+```
+
+Display all the child HTML elements of `h1`,
+
+```javascript
+// Displays only all the HTML child elements
+console.log(h1.children)
+```
+
+First child element of `h1` is,
+
+```javascript
+// First child HTML element inside h1
+console.log(h1.firstElementChild)
+```
+
+Change styling,
+
+```javascript
+// Has inline CSS styling i.e. style="color: X"
+h1.firstElementChild.style.color = 'white'
+```
+
+Last child element inside `h1`
+
+```javascript
+// Last child HTML element inside h1
+console.log(h1.lastElementChild)
+```
+
+Change styling of last child element,
+
+```javascript
+// Has inline CSS styling i.e. style="color: X"
+h1.lastElementChild.style.color = 'orangered'
+```
+
+### Upward traversal
+
+```javascript
+// Gets the parentNode
+console.log(h1.parentNode)
+
+// Gets the parent element
+console.log(h1.parentElement)
+
+// Gets the closest parent with class 'header'
+h1.closest('.header').style.background = 'var(--gradient-secondary)'
+
+// Gets the closest parent with class 'header'
+h1.closest('.h1').style.background = 'var(--gradient-primary)'
+```
+
+### Sideways traversal
+
+```javascript
+// Previous element on the same level i.e. no parent and no child
+console.log(h1.previousElementSibling)
+
+// Next element on the same level i.e. no parent and no child
+console.log(h1.nextElementSibling)
+
+// Nodes?
+console.log(h1.previousSibling)
+console.log(h1.nextSibling)
+
+// All siblings - Even the h1 element itself
+console.log(h1.parentElement.children)
+
+// All the siblings to h1
+const temp = [...h1.parentElement.children]
+
+// Scale all items with 0.5x exept
+temp.forEach(function (el) {
+    if (el !== h1) {
+        el.style.transform = 'scale(0.5)'
+    }
+})
+```
+
+## Building a tabbed component
+
+![tabbed](img/tabbed.png)
+
+The active tab and content area belong to the classes `operations__tab--active`
+and `operations__content--active`.
+
+Following components belong to the whole tabbed component app,
+
+```javascript
+// Tabbed component
+const tabs = document.querySelectorAll('.operations__tab')
+const tabsContainer = document.querySelector('.operations__tab-container')
+const tabContent = document.querySelectorAll('.operations__content')
+```
+
+To build efficient apps, we use event delegation instead of selecting the
+actual element. With event delegation, we select the container element
+enclosing the tabs
+
+```javascript
+// Event delegation -- choose parent instead of actual element
+tabsContainer.addEventListener('click', function (event) {...})
+```
+
+To get the button element that was clicked we could use `event.target` and
+succeed in the most cases but if you click on the span element inside the
+button then you would instead get that specific span element. This only in
+cases where the `button` tag is structured in the following way,
+
+```html
+<button class="..."><span>01</span></button>
+```
+
+To avoid this problem, you can use the `closest()` function.
+
+```javascript
+const clicked = event.target.closest('.operations__tab')
+```
+
+Since the event listener is now placed on the whole parent container. If the
+user clicks on an element in the container that doest have a `classList`
+attribute, an error will be raised. One way to handle this issue is to place
+out a guard statement. See example below.
+
+```javascript
+if (!clicked) return
+```
+
+The tab has a certain functionality that when clicked, it somehow pops up
+couple of pixels in an animated way i.e.,
+
+```css
+.operations__tab--active {
+    transform: translateY(-66%);
+}
+```
+
+In order to not get more than one tab popping, you will need to first remove
+the `operations__tab--active` from all tab class lists. Then you just add it
+back to the element that was clicked.
+
+```javascript
+tabs.forEach((element) => element.classList.remove('operations__tab--active'))
+clicked.classList.add('operations__tab--active')
+```
+
+The same method yields with the content area for each tab i.e. `operations__content--active`
+
+```javascript
+tabContent.forEach((el) => el.classList.remove('operations__content--active'))
+```
+
+Note that every button has a data class i.e.,
+
+```html
+<button class="btn operations__tab operations__tab--2" data-tab="2">
+    <span>02</span>Instant Loans
+</button>
+```
+
+and every `operation__content` class item has also following class item
+`operations__content--X` i.e.
+
+```html
+<div
+    class="operations__content operations__content--1 operations__content--active"
+>
+    <div class="operations__icon operations__icon--1">
+        <svg>
+            <use xlink:href="img/icons.svg#icon-upload"></use>
+        </svg>
+    </div>
+    <h5 class="operations__header">
+        Tranfser money to anyone, instantly! No fees, no BS.
+    </h5>
+    <p>
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+        commodo consequat.
+    </p>
+</div>
+```
+
+Using this, you can first select related `operations__content-X` class item by
+using `${clicked.dataset.tab}` and add `operations__content--active` to its
+class-list.
+
+```javascript
+console.log(clicked.dataset.tab)
+document
+    .querySelector(`.operations__content--${clicked.dataset.tab}`)
+    .classList.add('operations__content--active')
+```
+
+## Passing arguments to event handlers

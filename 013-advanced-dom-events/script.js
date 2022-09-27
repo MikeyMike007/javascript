@@ -294,3 +294,136 @@ document
             document.querySelector(id).scrollIntoView({ behavior: 'smooth' })
         }
     })
+
+// // DOM Traversing
+// //
+// const h1 = document.querySelector('h1')
+// // Traversing downwards - Children
+//
+// // Select all elements that has class 'highlight' inside the h1 element/tag
+// console.log(h1.querySelectorAll('.highlight'))
+//
+// // Displays all child nodes e.g. text, comments, etc. (A lot of info)
+// console.log(h1.childNodes)
+//
+// // Displays only all the HTML child elements
+// console.log(h1.children)
+//
+// // First child HTML element inside h1
+// console.log(h1.firstElementChild)
+//
+// // Has inline CSS styling i.e. style="color: X"
+// h1.firstElementChild.style.color = 'white'
+//
+// // Last child HTML element inside h1
+// console.log(h1.lastElementChild)
+//
+// // Has inline CSS styling i.e. style="color: X"
+// h1.lastElementChild.style.color = 'orangered'
+//
+// // Going upwards
+// console.log('-------')
+// // gets the parentNode
+// console.log(h1.parentNode)
+// // gets the parent element
+// console.log(h1.parentElement)
+//
+// // Gets the closest parent with class 'header'
+// h1.closest('.header').style.background = 'var(--gradient-secondary)'
+//
+// // Gets the closest parent with class 'header'
+// // h1.closest('.h1').style.background = 'var(--gradient-primary)'
+//
+// // Going sideways: Siblings
+//
+// // Previous element on the same level i.e. no parent and no child
+// console.log(h1.previousElementSibling)
+//
+// // Nextr  element on the same level i.e. no parent and no child
+// console.log(h1.nextElementSibling)
+//
+// console.log(h1.previousSibling)
+// console.log(h1.nextSibling)
+//
+// // All siblings
+// console.log(h1.parentElement.children)
+//
+// // All the siblings to h1
+// const temp = [...h1.parentElement.children]
+//
+// Scale all items with 0.5x exept
+// temp.forEach(function (el) {
+//     if (el !== h1) {
+//         el.style.transform = 'scale(0.5)'
+//     }
+// })
+//
+//
+
+// Tabbed component
+
+const tabs = document.querySelectorAll('.operations__tab')
+const tabsContainer = document.querySelector('.operations__tab-container')
+const tabContent = document.querySelectorAll('.operations__content')
+
+// Event delegation -- choose parent instead of actual element
+tabsContainer.addEventListener('click', function (event) {
+    // Using event.target would retrieve the button in most cases but if you
+    // click on the span element inside the button element then you would only
+    // retreive that element. You can fix this problem with closest() function
+    const clicked = event.target.closest('.operations__tab')
+    if (!clicked) return
+
+    console.log(clicked)
+
+    // Since the eventlistener is now placed on the whole parent container. If
+    // the user clicks on the container there exist no classlist, therefor you
+    // will get an error in this case. One way to handle this is with a guard
+    // statement. Function will justt return if there exist no classList.
+
+    tabs.forEach((element) =>
+        element.classList.remove('operations__tab--active')
+    )
+
+    tabContent.forEach((el) =>
+        el.classList.remove('operations__content--active')
+    )
+
+    clicked.classList.add('operations__tab--active')
+
+    console.log(clicked.dataset.tab)
+    document
+        .querySelector(`.operations__content--${clicked.dataset.tab}`)
+        .classList.add('operations__content--active')
+})
+
+// Menu fade animation
+
+const handleHover = function (el) {
+    console.log(this, el.currentTarget)
+    if (el.target.classList.contains('nav__link')) {
+        const link = el.target
+        console.log(link.closest('.nav'))
+        const siblings = link.closest('.nav').querySelectorAll('.nav__link')
+        const logo = link.closest('.nav').querySelector('img')
+        siblings.forEach((el) => {
+            if (el !== link) el.style.opacity = this
+        })
+        logo.style.opacity = this
+    }
+}
+
+const nav = document.querySelector('.nav')
+
+// Passing "argument" into handler
+nav.addEventListener('mouseover', handleHover.bind(0.5))
+
+nav.addEventListener('mouseout', handleHover.bind(1.0))
+
+// nav.addEventListener('mouseover', function (el) {
+//     handleHover(el, 0.5)
+// })
+//
+// nav.addEventListener('mouseout', function (el) {
+//     handleHover(el, 1.0)
+// })
