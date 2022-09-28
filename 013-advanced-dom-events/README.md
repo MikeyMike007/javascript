@@ -794,3 +794,388 @@ document
 ```
 
 ## Passing arguments to event handlers
+
+In this chapter, a menu fade animation is made. See image below,
+
+![fade](img/fade.png)
+
+This means, as soon as you enter with the mouse on one of the links, the other
+links fade away. And once you move the mouse outside the link, the other links
+un-fade.
+
+First, we use event delegation and choose the parent container that encloses
+the links and add an event listeners to them. One event listener for `mouseover`
+and one for `mouseout`. With using bind, we can pass an argument to the
+`handleHover` function.
+
+```javascript
+const nav = document.querySelector('.nav')
+// Passing "argument" into handler
+nav.addEventListener('mouseover', handleHover.bind(0.5))
+nav.addEventListener('mouseout', handleHover.bind(1.0))
+```
+
+We could call the function `handleHover` from the callback function immediately
+but that code is not really best practise i.e.,
+
+```javascript
+nav.addEventListener('mouseover', function (el) {
+    handleHover(el, 0.5)
+})
+
+nav.addEventListener('mouseout', function (el) {
+    handleHover(el, 1.0)
+})
+```
+
+Then we implement the function `handleHover`
+
+```javascript
+const handleHover = function (el) {
+    // Using Event Delegation - due to bubbling, same event listener event will
+    // be triggered for all elements inside the parent nav container.
+    // We need to select the one we are interest of i.e. the element that
+    // belongs to the class nav__link
+    if (el.target.classList.contains('nav__link')) {
+        const link = el.target
+
+        // Select all the siblings - i.e. all elements that belong to classList nav__link
+        const siblings = link.closest('.nav').querySelectorAll('.nav__link')
+        // Select the logo
+        const logo = link.closest('.nav').querySelector('img')
+        siblings.forEach((el) => {
+            // Set the opacity level for all links except the one that was clicked
+            if (el !== link) el.style.opacity = this
+        })
+        // Same with logo
+        logo.style.opacity = this
+    }
+}
+```
+
+## Implementing a sticky navigation - The scroll event
+
+```javascript
+// Get the section 1 container
+const section_1 = document.querySelector('#section--1')
+
+// Get the coordinates for the container
+const initialCoords = section_1.getBoundingClientRect()
+
+// Add a scroll eventlistener to the window element
+window.addEventListener('scroll', function (el) {
+    // Y coordinate for current window
+    console.log(window.scrollY)
+
+    // If Y coordinate of window is larger than section--1 container top coordinates
+    //  Then add the nav element to the classlist 'sticky'
+    if (this.window.scrollY > initialCoords.top) {
+        nav.classList.add('sticky')
+
+        // Otherwise, remove nav from the classlist 'sticky'
+    } else {
+        nav.classList.remove('sticky')
+    }
+})
+```
+
+Adding a scroll event listener to the window element is memory and performance
+consuming. There is a smarter way.
+
+## A better way: The intersection observer API
+
+A better and more efficient way is to create a `IntersectionObserver` object.
+This object takes a callback function and some options as input.
+
+The callback function will be triggered when the `root` element and the section
+that is observed intersects with each other according to the `threshold`
+variable in `obsOption`
+
+```javascript
+// This function will be trigerred once every threshold intersection is fulfilled
+const obsCallback = function (entries, observer) {
+    // Entries are an array of the threshold entries
+    entries.forEach((entry) => {
+        console.log(entry)
+    })
+    // This prints the obsOption project
+    console.log(observer)
+}
+
+const obsOption = {
+    // root: null means that the root element is the viewport
+    root: null,
+
+    // Callback function will be called everytime when the root element
+    // (viewport) is intersecting the section1 with 0%, 25%, 75% and 100%.
+    // Please note that section1 is much larger than viewport so the event 100%
+    // will never happen.
+    threshold: [0, 0.25, 0.5, 0.75, 1],
+}
+
+const observer = new IntersectionObserver(obsCallback, obsOption)
+section1 = document.querySelector('.section--1')
+
+// The element section1 is being observed
+observer.observe(section1)
+```
+
+Now, lets look how to solve our main problem to only show the header when there
+is 0% overlap with the `viewport` and the `header`.
+
+```javascript
+// The header container / area
+const header = document.querySelector('.header')
+// The height of the nav container
+const navHeight = nav.getBoundingClientRect().height
+
+// Callback function that will be triggered when criteria in options are
+// fulfilled
+const obsCallback = function (entries, observer) {
+    // same as const entry = entries[0]
+    const [entry] = entries
+    // When there is no intersection add nav to the classlist 'sticky'
+    if (!entry.isIntersecting) {
+        nav.classList.add('sticky')
+    } else {
+        // Otherwise, when there is an intersection between viewport and
+        // header, remove nav from the classlist 'sticky'
+        nav.classList.remove('sticky')
+    }
+}
+
+const obsOption = {
+    root: null,
+    // threshold 0: when you exit the area with viewport
+    threshold: 0,
+    // How many pixels before will you let the callback function be trigerred
+    rootMargin: `-${navHeight}px`,
+}
+
+const observer = new IntersectionObserver(obsCallback, obsOption)
+observer.observe(header)
+```
+
+## Revealing elements on scroll
+
+```javascript
+// Select all section containers
+const allSections = document.querySelectorAll('.section')
+
+// Build the callback function
+const revealSection = function (entries, observer) {
+    //Only one threshold - same as const entry = entries[0]
+    const [entry] = entries
+    // Do nothing if there is no intersection
+    if (!entry.isIntersecting) return
+    // If there is intersection, remove the interescted element from the
+    // classList 'section--hidden'
+    // Note that you can get the intersected element by entry.target
+    else entry.target.classList.remove('section--hidden')
+
+    // Unobserve
+    observer.unobserve(entry.target)
+}
+
+const sectionObserver = new IntersectionObserver(revealSection, {
+    // Check for intersections with viewport
+    root: null,
+    // Intersected threshold 15%
+    threshold: 0.15,
+})
+
+// Observe all sections
+// Add each section element to the classlist 'section--hidden'
+allSections.forEach(function (el) {
+    sectionObserver.observe(el)
+    el.classList.add('section--hidden')
+})
+```
+
+## Lazy loading of images
+
+To improve performance, its necessary to do lazy loading of images. This means
+that images are loaded when only necessary.
+
+The images of interest have following html tag and CSS attributes,
+
+```html
+<img
+    src="img/digital-lazy.jpg"
+    data-src="img/digital.jpg"
+    alt="Computer"
+    class="features__img lazy-img"
+/>
+```
+
+```css
+.features__img {
+    width: 100%;
+}
+
+.lazy-img {
+    filter: blur(20px);
+}
+```
+
+The image that ends with `...-lazy.jpg` is a very small image compared to the
+one in the `data.src` attribute.
+
+We want to load the small image first and then lazy-load the large images. See
+code below to achieve this,
+
+```javascript
+// Select all images thas has a data-src attribute
+const imgTargets = document.querySelectorAll('img[data-src]')
+
+const loadImg = function (entries, observer) {
+    // Only one element in threshold
+    const [entry] = entries
+
+    // Do nothing if there is no intersection
+    if (!entry.isIntersecting) return
+    // At intersection set the image source (entry.target.src) to the source in
+    // the attribute `data-src`. Please note that in `JavaScript` we refer to
+    // that attribute as dataset.src
+    entry.target.src = entry.target.dataset.src
+
+    // When large image has fully loaded, then get rid of the blur i.e. remove
+    // entry.target from // the classlist 'lazy-img'.
+    entry.target.addEventListener('load', function () {
+        entry.target.classList.remove('lazy-img')
+    })
+
+    // Unobserve images when fully loaded
+    observer.unobserve(entry.target)
+}
+
+const imgObserver = new IntersectionObserver(loadImg, {
+    root: null,
+    threshold: 0,
+    // Create some margin
+    rootMargin: '200px',
+})
+
+// Observe all imgTarget elements
+imgTargets.forEach((img) => imgObserver.observe(img))
+```
+
+## Slider component
+
+A slider component looks like following,
+
+![slider](img/slider.png)
+
+There are several things to think about when constructing this kind of component,
+
+```javascript
+// All slides inside the slide container
+const slides = document.querySelectorAll('.slide')
+// Button on left side of slider
+const btnLeft = document.querySelector('.slider__btn--left')
+// Button on right slide of slider
+const btnRight = document.querySelector('.slider__btn--right')
+// Container that contains all the dots that exists on all slide images
+const dotContainer = document.querySelector('.dots')
+
+// Functions create all the dots
+const createDots = function () {
+    // Loop through all the slides - We are just interested in the length
+    // There will be same amount of dots as there exists slides
+    slides.forEach(function (_, i) {
+        // Insert following code into the end of the dotContainer
+        // Same amount of times as the number of slides that exists
+        dotContainer.insertAdjacentHTML(
+            'beforeend',
+            `<button class="dots__dot" data-slide="${i}"></button>`
+        )
+    })
+}
+
+// Mark the current active slide as 'active'
+const activateDot = function (slide) {
+    // Get all dot elements
+    const dots = document.querySelectorAll('.dots__dot')
+    // First remove each element for the classList 'dots__dot--active'
+    dots.forEach(function (el) {
+        el.classList.remove('dots__dot--active')
+    })
+
+    // Select an element that beloings to the classList 'dots__dot' which
+    // also has an attribute data-slide=x. Then add it to the 'dots__dot--active'
+    // classlist
+    document
+        .querySelector(`.dots__dot[data-slide="${slide}"]`)
+        .classList.add('dots__dot--active')
+}
+
+// Function that handles the order of slides through the 'translateX' function
+const gotoSlide = function (slide) {
+    /*
+    If slide nr 0 is the active slide, then the slides will have following placement in order,
+    [0, 100, 200, 300, 400]
+
+    if slide nr 1 is active, then,
+      [-100, 0, 100, 200, 300]
+
+    If slide nr 3 is active then,
+    [-300, -200, -100, 0, 100]
+    */
+    slides.forEach((s, i) => {
+        s.style.transform = `translateX(${100 * (i - slide)}%)`
+    })
+
+    // Activate the slide
+    activateDot(slide)
+}
+
+// Function that activates next slide
+const nextSlide = function () {
+    // If the current slide value is equal to the max nr of slides, then set
+    // the slide value to 0
+    if (curSlide === maxSlide) curSlide = 0
+    // Otherwise, you can allow it to increase in value
+    else curSlide++
+
+    gotoSlide(curSlide)
+}
+// Function that activates previous slide
+const prevSlide = function () {
+    // If current slide is equal to  0, then set the slide value to maxslide
+    if (curSlide === 0) curSlide = maxSlide
+    // Else, let the slide value decrease by 1
+    else curSlide--
+
+    gotoSlide(curSlide)
+}
+
+// Variables
+//
+// Number of the current selected slide
+let curSlide = 0
+// Number of slides
+const maxSlide = slides.length - 1
+
+// Create the dots graphically in the slider
+createDots()
+gotoSlide(0)
+
+// Add event listeners
+btnRight.addEventListener('click', nextSlide)
+btnLeft.addEventListener('click', prevSlide)
+
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft') prevSlide()
+
+    e.key === 'ArrowRight' && nextSlide()
+})
+
+// Add eventlistener to dot container
+dotContainer.addEventListener('click', function (e) {
+    if (e.target.classList.contains('dots__dot')) {
+        // const slide = e.target.dataset.slide same as below with destructuring
+        const { slide } = e.target.dataset
+        gotoSlide(slide)
+    }
+})
+```

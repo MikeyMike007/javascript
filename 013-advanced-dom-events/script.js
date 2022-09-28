@@ -281,6 +281,28 @@ btnScrollTo.addEventListener('click', () => {
 
 // 1. Add event listener to common parent element
 // 2. Determine what element originated the event
+//
+//
+// const handleHover = function (el) {
+//     console.log(this, el.currentTarget)
+//     if (el.target.classList.contains('nav__link')) {
+//         const link = el.target
+//         console.log(link.closest('.nav'))
+//         const siblings = link.closest('.nav').querySelectorAll('.nav__link')
+//         const logo = link.closest('.nav').querySelector('img')
+//         siblings.forEach((el) => {
+//             if (el !== link) el.style.opacity = this
+//         })
+//         logo.style.opacity = this
+//     }
+// }
+//
+// const nav = document.querySelector('.nav')
+//
+// // Passing "argument" into handler
+// nav.addEventListener('mouseover', handleHover.bind(0.5))
+//
+// nav.addEventListener('mouseout', handleHover.bind(1.0))
 
 document
     .querySelector('.nav__links')
@@ -359,6 +381,8 @@ document
 // })
 //
 //
+//
+//
 
 // Tabbed component
 
@@ -399,31 +423,214 @@ tabsContainer.addEventListener('click', function (event) {
 
 // Menu fade animation
 
-const handleHover = function (el) {
-    console.log(this, el.currentTarget)
+const nav = document.querySelector('.nav')
+
+nav.addEventListener('mouseover', fadeHover.bind('0.5'))
+nav.addEventListener('mouseout', fadeHover.bind('1.0'))
+
+function fadeHover(el) {
     if (el.target.classList.contains('nav__link')) {
         const link = el.target
-        console.log(link.closest('.nav'))
-        const siblings = link.closest('.nav').querySelectorAll('.nav__link')
-        const logo = link.closest('.nav').querySelector('img')
-        siblings.forEach((el) => {
-            if (el !== link) el.style.opacity = this
+        console.log(this, link)
+        const all_links = link.closest('.nav').querySelectorAll('.nav__link')
+        all_links.forEach((el) => {
+            if (el !== link) {
+                el.style.opacity = this
+            }
         })
+        link.style.opacity = 1.0
+        const logo = link.closest('.nav').querySelector('#logo')
         logo.style.opacity = this
     }
 }
 
-const nav = document.querySelector('.nav')
+// Sticky navigation
 
-// Passing "argument" into handler
-nav.addEventListener('mouseover', handleHover.bind(0.5))
+// const section_1 = document.querySelector('#section--1')
+// const initialCoords = section_1.getBoundingClientRect()
+// console.log(initialCoords)
+//
+// window.addEventListener('scroll', function (el) {
+//     console.log(window.scrollY)
+//
+//     if (this.window.scrollY > initialCoords.top) {
+//         nav.classList.add('sticky')
+//     } else {
+//         nav.classList.remove('sticky')
+//     }
+// })
 
-nav.addEventListener('mouseout', handleHover.bind(1.0))
-
-// nav.addEventListener('mouseover', function (el) {
-//     handleHover(el, 0.5)
+// Header is the area that ends with section--1 starts
+// const header = document.querySelector('.header')
+// const navHeight = nav.getBoundingClientRect().height
+//
+// const stickyNav = function (entries) {
+//     console.log(entries)
+//     const [entry] = entries
+//     // console.log(entry)
+//     if (!entry.isIntersection) nav.classList.add('sticky')
+//     else nav.classList.remove('sticky')
+// }
+//
+// const headerObserver = new IntersectionObserver(stickyNav, {
+//     root: null,
+//     threshold: 0,
+//     rootMargin: `-${navHeight}px`,
 // })
 //
-// nav.addEventListener('mouseout', function (el) {
-//     handleHover(el, 1.0)
-// })
+// headerObserver.observe(header)
+const header = document.querySelector('.header')
+const navHeight = nav.getBoundingClientRect().height
+const obsCallback = function (entries, observer) {
+    // entries are an array of the threshold entries
+    //
+    const [entry] = entries // same as const entry = entries[0]
+    // entries.forEach((entry) => {
+    //     console.log(entry)
+    // })
+    // // console.log(observer) // this is the obsOption object
+    if (!entry.isIntersecting) {
+        nav.classList.add('sticky')
+    } else {
+        nav.classList.remove('sticky')
+    }
+}
+
+const obsOption = {
+    root: null,
+    threshold: 0, // Callback function will be called everytime when the root element (viewport) is intersecting the section1 with 10%.
+    // threshold 0: when you exit the area with viewport
+    // threshold 1: Sometimes unecessary since area is sometimes bigger than viewport
+    rootMargin: `-${navHeight}px`,
+}
+
+const observer = new IntersectionObserver(obsCallback, obsOption)
+observer.observe(header)
+
+// Reveal elements on scroll
+
+const allSections = document.querySelectorAll('.section')
+
+const revealSection = function (entries, observer) {
+    //Only one threshold
+    const [entry] = entries
+    // document.getElementById(entry.target.id).classList.remove('section--hidden')
+    if (!entry.isIntersecting) return
+    else entry.target.classList.remove('section--hidden')
+
+    observer.unobserve(entry.target)
+}
+
+const sectionObserver = new IntersectionObserver(revealSection, {
+    root: null,
+    threshold: 0.15,
+})
+
+allSections.forEach(function (el) {
+    sectionObserver.observe(el)
+    el.classList.add('section--hidden')
+})
+
+// Lazy loading
+// Performance optimization
+
+const imgTargets = document.querySelectorAll('img[data-src]')
+
+const loadImg = function (entries, observer) {
+    const [entry] = entries
+
+    if (!entry.isIntersecting) return
+    entry.target.src = entry.target.dataset.src
+
+    entry.target.addEventListener('load', function () {
+        entry.target.classList.remove('lazy-img')
+    })
+
+    observer.unobserve(entry.target)
+}
+
+const imgObserver = new IntersectionObserver(loadImg, {
+    root: null,
+    threshold: 0,
+    rootMargin: '200px',
+})
+
+imgTargets.forEach((img) => imgObserver.observe(img))
+
+// Slider component
+const slides = document.querySelectorAll('.slide')
+// const slider = document.querySelector('.slider')
+const btnLeft = document.querySelector('.slider__btn--left')
+const btnRight = document.querySelector('.slider__btn--right')
+const dotContainer = document.querySelector('.dots')
+
+const createDots = function () {
+    slides.forEach(function (_, i) {
+        dotContainer.insertAdjacentHTML(
+            'beforeend',
+            `<button class="dots__dot" data-slide="${i}"></button>`
+        )
+    })
+}
+
+const activateDot = function (slide) {
+    const dots = document.querySelectorAll('.dots__dot')
+    dots.forEach(function (el) {
+        el.classList.remove('dots__dot--active')
+    })
+    document
+        .querySelector(`.dots__dot[data-slide="${slide}"]`)
+        .classList.add('dots__dot--active')
+}
+
+const gotoSlide = function (slide) {
+    slides.forEach((s, i) => {
+        s.style.transform = `translateX(${100 * (i - slide)}%)`
+    })
+    activateDot(slide)
+}
+
+const nextSlide = function () {
+    if (curSlide === maxSlide) curSlide = 0
+    else curSlide++
+
+    gotoSlide(curSlide)
+}
+
+const prevSlide = function () {
+    if (curSlide === 0) curSlide = maxSlide
+    else curSlide--
+
+    gotoSlide(curSlide)
+}
+
+// Variables
+//
+// Number of the current selected slide
+let curSlide = 0
+// Number of slides
+const maxSlide = slides.length - 1
+
+// Create the dots graphically in the slider
+createDots()
+
+// Activate slide 0
+gotoSlide(0)
+
+// Eventlisteners
+btnRight.addEventListener('click', nextSlide)
+btnLeft.addEventListener('click', prevSlide)
+
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft') prevSlide()
+
+    e.key === 'ArrowRight' && nextSlide()
+})
+
+dotContainer.addEventListener('click', function (e) {
+    if (e.target.classList.contains('dots__dot')) {
+        // const slide = e.target.dataset.slide same as below with destructuring
+        const { slide } = e.target.dataset
+        gotoSlide(slide)
+    }
+})
