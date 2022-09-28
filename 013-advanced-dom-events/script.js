@@ -634,3 +634,23 @@ dotContainer.addEventListener('click', function (e) {
         gotoSlide(slide)
     }
 })
+
+// Lifecycle DOM events
+//
+// You dont need to add everything in this eventhandler
+// You can solve it by putting the script tag in the end of the html body.
+// Or you can use defer and put the script tag in the head
+document.addEventListener('DOMContentLoaded', function (e) {
+    console.log('HTML parsed and DOM tree built.')
+    console.log(e)
+})
+
+window.addEventListener('load', function (e) {
+    console.log('Page fully loaded inc. images and css')
+})
+
+window.addEventListener('beforeunload', function (e) {
+    e.preventDefault()
+    console.log(e)
+    e.returnValue = ''
+})

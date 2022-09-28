@@ -1179,3 +1179,42 @@ dotContainer.addEventListener('click', function (e) {
     }
 })
 ```
+
+## Lifecycle DOM events
+
+```javascript
+// This eventhandler will be triggered when HTML is parsed and DOM tree has
+// been built
+//
+// NOTE:.
+// You dont need to add everything in this eventhandler.
+// You can solve it by putting the script tag in the end of the html body.
+// Or you can use defer and put the script tag in the head
+document.addEventListener('DOMContentLoaded', function (e) {
+    console.log('HTML parsed and DOM tree built.')
+    console.log(e)
+})
+
+// This event handler wil be trigerred when the page is fully loaded.
+// This includes images as well as css files
+window.addEventListener('load', function (e) {
+    console.log('Page fully loaded inc. images and css')
+})
+
+// This event listener is trigerred right after the user decides to leave the
+// page / close the page
+window.addEventListener('beforeunload', function (e) {
+    e.preventDefault()
+    console.log(e)
+    e.returnValue = ''
+})
+```
+
+## Efficient script loading - defer and async
+
+To implement JavaScript code, use following tag in the header. Its important
+that you add `defer`
+
+```html
+<script src="script.js" defer></script>
+```
